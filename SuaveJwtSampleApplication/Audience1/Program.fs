@@ -11,7 +11,7 @@ open Suave.Operators
 
 [<EntryPoint>]
 let main argv = 
-    
+    let seckey : Microsoft.IdentityModel.Tokens.SecurityKey =  KeyStore.securityKey (Base64String.fromString "Op5EqjC70aLS2dx3gI0zADPIZGX2As6UEwjA4oyBjMo")
     let jwtConfig = {
         Issuer = "http://localhost:8083/suave"
         ClientId = "7ff79ba3305c4e4f9d0ececeae70c78f"

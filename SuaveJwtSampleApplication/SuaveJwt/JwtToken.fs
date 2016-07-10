@@ -3,7 +3,7 @@
 open Encodings
 open System
 open System.Security.Claims
-open System.IdentityModel.Tokens
+open Microsoft.IdentityModel.Tokens
 open System.Security.Cryptography
 
 type TokenCreateRequest = {         
@@ -45,13 +45,14 @@ let createToken tokenCreateRequest identityStore audience =
         let! isValidCredentials = 
             identityStore.isValidCredentials tokenCreateRequest.UserName tokenCreateRequest.Password
         if isValidCredentials then                            
-            let signingCredentials = (identityStore.getSecurityKey >> identityStore.getSigningCredentials) audience.Secret
+            let signingCredentials =
+                (identityStore.getSecurityKey >> identityStore.getSigningCredentials) audience.Secret
             let issuedOn = Nullable DateTime.UtcNow
             let expiresBy = Nullable (DateTime.UtcNow.Add(tokenCreateRequest.TokenTimeSpan))       
             let! claims =  identityStore.getClaims tokenCreateRequest.UserName 
             let jwtSecurityToken = 
-                new JwtSecurityToken(tokenCreateRequest.Issuer, audience.ClientId, claims, issuedOn, expiresBy, signingCredentials)
-            let handler = new JwtSecurityTokenHandler()
+                new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(tokenCreateRequest.Issuer, audience.ClientId, claims, issuedOn, expiresBy,  signingCredentials)
+            let handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler()
             let accessToken = handler.WriteToken(jwtSecurityToken)                
             return Some {AccessToken = accessToken; ExpiresIn = tokenCreateRequest.TokenTimeSpan.TotalSeconds}
         else return None 
@@ -67,7 +68,7 @@ type TokenValidationRequest = {
 
 let validate tokenValidationRequest = 
     let tokenValidationParameters =
-        let validationParams = new TokenValidationParameters()
+        let validationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
         validationParams.ValidAudience <- tokenValidationRequest.ClientId
         validationParams.ValidIssuer <- tokenValidationRequest.Issuer
         validationParams.ValidateLifetime <- true
@@ -76,7 +77,7 @@ let validate tokenValidationRequest =
         validationParams    
     
     try 
-        let handler = new JwtSecurityTokenHandler() 
+        let handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler() 
         let principal = handler.ValidateToken(tokenValidationRequest.AccessToken, tokenValidationParameters, ref null)
         principal.Claims |> Choice1Of2
     with

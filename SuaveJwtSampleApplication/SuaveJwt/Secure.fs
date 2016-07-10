@@ -3,7 +3,7 @@
 
 open System.Security.Claims
 
-open System.IdentityModel.Tokens
+open Microsoft.IdentityModel.Tokens
 open JwtToken
 open Suave
 open Suave.RequestErrors
@@ -31,7 +31,7 @@ let jwtAuthenticate jwtConfig webpart (ctx: HttpContext) =
             Issuer = jwtConfig.Issuer
             SecurityKey = jwtConfig.SecurityKey
             ClientId = jwtConfig.ClientId
-            AccessToken = accessToken
+            AccessToken = accessToken            
         }
         let validationResult = validate tokenValidationRequest 
         match validationResult with

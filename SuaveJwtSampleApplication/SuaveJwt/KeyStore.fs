@@ -1,12 +1,12 @@
 ﻿module KeyStore
 
-open System.IdentityModel.Tokens
+open Microsoft.IdentityModel.Tokens
 open Encodings
 
 
-let securityKey sharedKey : SecurityKey =
+let securityKey sharedKey : Microsoft.IdentityModel.Tokens.SecurityKey =
     let symmetricKey = sharedKey |> Base64String.decode
-    new InMemorySymmetricSecurityKey(symmetricKey) :> SecurityKey
+    new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(symmetricKey) :> SecurityKey
 
 let hmacSha256 secretKey =
-    new SigningCredentials(secretKey,SecurityAlgorithms.HmacSha256Signature, SecurityAlgorithms.Sha256Digest)
+    new SigningCredentials(secretKey,SecurityAlgorithms.HmacSha256Signature)
